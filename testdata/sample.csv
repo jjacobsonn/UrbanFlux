@@ -1,0 +1,7 @@
+# Sample CSV for testing
+# This is a minimal test file - replace with actual NYC 311 data
+
+unique_key,created_date,closed_date,complaint_type,descriptor,borough,latitude,longitude
+1,2025-01-01 10:00:00,2025-01-01 12:00:00,Noise,Loud Music,MANHATTAN,40.7580,-73.9855
+2,2025-01-01 11:00:00,2025-01-01 13:00:00,Street Condition,Pothole,BROOKLYN,40.6782,-73.9442
+3,2025-01-01 12:00:00,2025-01-01 14:00:00,Illegal Parking,Blocked Driveway,QUEENS,40.7282,-73.7949

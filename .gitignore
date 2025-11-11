@@ -1,0 +1,120 @@
+# Rust
+/target/
+**/*.rs.bk
+*.pdb
+Cargo.lock
+
+# Debugging
+*.dSYM/
+*.pdb
+
+# Build artifacts
+/build/
+/dist/
+*.so
+*.dylib
+*.dll
+*.a
+*.lib
+
+# Environment and secrets
+.env
+.env.local
+.env.*.local
+*.pem
+*.key
+secrets/
+
+# Database
+*.db
+*.sqlite
+*.sqlite3
+/data/
+/pgdata/
+
+# Logs
+*.log
+logs/
+/runs/
+/bad_rows/
+
+# IDEs and editors
+.vscode/
+!.vscode/extensions.json
+!.vscode/settings.json.example
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+*.sublime-project
+*.sublime-workspace
+.project
+.classpath
+.settings/
+
+# JetBrains
+.idea/
+*.iml
+*.ipr
+*.iws
+
+# VS Code
+.vscode/*
+!.vscode/extensions.json
+!.vscode/launch.json
+!.vscode/tasks.json
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+._*
+.Spotlight-V100
+.Trashes
+
+# Linux
+*~
+.fuse_hidden*
+.directory
+.Trash-*
+.nfs*
+
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+*.lnk
+
+# Docker
+.dockerignore
+docker-compose.override.yml
+
+# Testing
+/testdata/generated/
+/coverage/
+*.profraw
+*.profdata
+
+# Temporary files
+*.tmp
+*.temp
+*.bak
+*.cache
+/tmp/
+
+# Documentation builds
+/docs/_build/
+/docs/.doctrees/
+
+# Release artifacts
+*.tar.gz
+*.zip
+*.deb
+*.rpm
+
+
+# Added by cargo
+
+/target

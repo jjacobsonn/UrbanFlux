@@ -1,0 +1,57 @@
+version: '3.9'
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: urbanflux-postgres
+    environment:
+      POSTGRES_USER: urbanflux_user
+      POSTGRES_PASSWORD: urbanflux_dev_password
+      POSTGRES_DB: urbanflux
+      POSTGRES_INITDB_ARGS: "-E UTF8 --locale=en_US.UTF-8"
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./migrations:/docker-entrypoint-initdb.d
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U urbanflux_user -d urbanflux"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - urbanflux-network
+
+  etl:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: urbanflux-etl
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      PGHOST: postgres
+      PGPORT: 5432
+      PGUSER: urbanflux_user
+      PGPASSWORD: urbanflux_dev_password
+      PGDATABASE: urbanflux
+      ETL_INPUT_PATH: /app/testdata/sample.csv
+      ETL_CHUNK_SIZE: 100000
+      ETL_MODE: full
+      RUST_LOG: urbanflux=info,sqlx=warn
+    volumes:
+      - ./testdata:/app/testdata:ro
+      - ./runs:/app/runs
+      - ./bad_rows:/app/bad_rows
+    networks:
+      - urbanflux-network
+    command: ["--help"]
+
+volumes:
+  postgres_data:
+    driver: local
+
+networks:
+  urbanflux-network:
+    driver: bridge
