@@ -53,11 +53,11 @@ We are committed to providing a welcoming and inclusive environment for all cont
 # Fork the repository on GitHub
 
 # Clone your fork
-git clone https://github.com/YOUR_USERNAME/urbanflux.git
-cd urbanflux
+git clone https://github.com/YOUR_USERNAME/UrbanFlux.git
+cd UrbanFlux
 
 # Add upstream remote
-git remote add upstream https://github.com/ORIGINAL_OWNER/urbanflux.git
+git remote add upstream https://github.com/jjacobsonn/UrbanFlux.git
 
 # Copy environment file
 cp .env.example .env
@@ -78,7 +78,7 @@ make up
 
 ### 1. Find or Create an Issue
 
-- Check existing [issues](https://github.com/yourusername/urbanflux/issues)
+- Check existing [issues](https://github.com/jjacobsonn/UrbanFlux/issues)
 - Comment on an issue to claim it
 - For new features, create an issue first to discuss
 
@@ -355,8 +355,8 @@ When adding features or changing behavior:
 
 ### Getting Help
 
-- Check existing [issues](https://github.com/yourusername/urbanflux/issues)
-- Search [discussions](https://github.com/yourusername/urbanflux/discussions)
+- Check existing [issues](https://github.com/jjacobsonn/UrbanFlux/issues)
+- Search [discussions](https://github.com/jjacobsonn/UrbanFlux/discussions)
 - Read the [documentation](docs/)
 - Ask in a new discussion
 

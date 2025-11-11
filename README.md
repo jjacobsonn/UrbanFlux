@@ -1,6 +1,6 @@
 # UrbanFlux
 
-[![CI](https://github.com/yourusername/urbanflux/workflows/CI/badge.svg)](https://github.com/yourusername/urbanflux/actions)
+[![CI](https://github.com/jjacobsonn/UrbanFlux/workflows/CI/badge.svg)](https://github.com/jjacobsonn/UrbanFlux/actions)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 > **High-performance ETL system for NYC 311 Service Request data** — Built with Rust for systems-level rigor, async I/O, and production-grade reliability.
@@ -37,8 +37,8 @@ UrbanFlux is a cross-platform, production-ready ETL pipeline that ingests multi-
 ### 1. Clone and Setup
 
 ```bash
-git clone https://github.com/yourusername/urbanflux.git
-cd urbanflux
+git clone https://github.com/jjacobsonn/UrbanFlux.git
+cd UrbanFlux
 cp .env.example .env
 ```
 
