@@ -2,22 +2,25 @@
 use anyhow::Result;
 use tracing::info;
 
-pub struct Loader;
+use crate::db::schema::{Database, ServiceRequest};
+
+pub struct Loader {
+    db: Database,
+}
 
 impl Loader {
-    pub fn new() -> Self {
-        Self
+    pub fn new(db: Database) -> Self {
+        Self { db }
     }
 
-    pub async fn load(&self) -> Result<()> {
-        info!("Load phase - to be implemented");
-        // Loading logic will be implemented in next phase
-        Ok(())
+    pub async fn load(&self, records: Vec<ServiceRequest>) -> Result<u64> {
+        info!("Loading {} records to database", records.len());
+
+        let inserted = self.db.bulk_insert(&records).await?;
+
+        info!("Successfully loaded {} records", inserted);
+
+        Ok(inserted)
     }
 }
 
-impl Default for Loader {
-    fn default() -> Self {
-        Self::new()
-    }
-}

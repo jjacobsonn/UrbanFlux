@@ -79,6 +79,9 @@ async fn main() -> Result<()> {
 
     info!("UrbanFlux ETL System starting...");
 
+    // Load configuration
+    let config = config::Config::from_env()?;
+
     let cli = Cli::parse();
 
     match cli.command {
@@ -95,25 +98,95 @@ async fn main() -> Result<()> {
                 dry_run = dry_run,
                 "Running ETL pipeline"
             );
-            println!("ETL pipeline execution will be implemented in next phase");
+
+            if dry_run {
+                println!("🔍 DRY RUN MODE - No database writes will occur\n");
+            }
+
+            // Extract
+            println!("📥 Extracting data from CSV...");
+            let extractor = etl::Extractor::new(chunk_size);
+            let chunks = extractor.extract(&input).await?;
+
+            let total_extracted: usize = chunks.iter().map(|c| c.len()).sum();
+            println!("✅ Extracted {} records in {} chunks", total_extracted, chunks.len());
+
+            // Transform and Load
+            let mut total_loaded = 0u64;
+            let mut total_rejected = 0usize;
+
+            let transformer = etl::Transformer::new();
+
+            // Only connect to DB if not in dry-run mode
+            let db = if !dry_run {
+                Some(db::Database::connect(&config.database_url()).await?)
+            } else {
+                None
+            };
+
+            for (i, chunk) in chunks.into_iter().enumerate() {
+                println!("🔄 Processing chunk {}/...", i + 1);
+                
+                let initial_count = chunk.len();
+                let clean_records = transformer.transform(chunk)?;
+                let rejected = initial_count - clean_records.len();
+                total_rejected += rejected;
+
+                if let Some(ref database) = db {
+                    let loader = etl::Loader::new(database.clone());
+                    let inserted = loader.load(clean_records).await?;
+                    total_loaded += inserted;
+                }
+            }
+
+            println!("\n📊 ETL Summary:");
+            println!("  Total extracted: {}", total_extracted);
+            println!("  Total rejected:  {}", total_rejected);
+            if let Some(ref database) = db {
+                println!("  Total loaded:    {}", total_loaded);
+                
+                let count = database.get_record_count().await?;
+                println!("  Records in DB:   {}", count);
+            } else {
+                println!("  Would load:      {}", total_extracted - total_rejected);
+            }
+
+            println!("\n✨ ETL pipeline completed successfully!");
             Ok(())
         }
         Commands::Db { command } => match command {
             DbCommands::Init => {
                 info!("Initializing database schema");
-                println!("Database initialization will be implemented in next phase");
+                println!("🔧 Initializing database schema...");
+
+                let db = db::Database::connect(&config.database_url()).await?;
+                db.initialize_schema().await?;
+
+                println!("✅ Database schema initialized successfully!");
                 Ok(())
             }
             DbCommands::RefreshMv { concurrently } => {
                 info!(concurrently = concurrently, "Refreshing materialized views");
-                println!("Materialized view refresh will be implemented in next phase");
+                println!("🔄 Refreshing materialized views...");
+
+                let db = db::Database::connect(&config.database_url()).await?;
+                db.refresh_materialized_views(concurrently).await?;
+
+                println!("✅ Materialized views refreshed successfully!");
                 Ok(())
             }
         },
         Commands::Report { command } => match command {
             ReportCommands::LastRun => {
                 info!("Generating last run report");
-                println!("Report generation will be implemented in next phase");
+                println!("📊 Last Run Report");
+                println!("─────────────────────");
+
+                let db = db::Database::connect(&config.database_url()).await?;
+                let count = db.get_record_count().await?;
+
+                println!("Total records in database: {}", count);
+                println!("\nNote: Detailed run reports will be implemented in future phase");
                 Ok(())
             }
         },

@@ -13,6 +13,7 @@ categories = ["command-line-utilities", "database"]
 [dependencies]
 # Async runtime
 tokio = { version = "1.42", features = ["full"] }
+tokio-stream = "0.1"
 
 # Database
 sqlx = { version = "0.8", features = ["runtime-tokio-native-tls", "postgres", "chrono", "uuid"] }
