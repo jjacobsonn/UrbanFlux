@@ -71,7 +71,7 @@ cargo run -- --help
 
 ## Next Steps
 
-1. **Read the full README**: `README.md`
+1. **Read the full README**: `../README.md`
 2. **Explore the code**: Start with `src/main.rs`
 3. **Run tests**: `cargo test`
 4. **Check style guide**: `STYLEGUIDE.md`
@@ -129,4 +129,4 @@ cargo clean && cargo build
 
 ---
 
-You're ready to start implementing the ETL pipeline! 🚀
+You're ready to use the ETL pipeline.

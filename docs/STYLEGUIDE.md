@@ -50,7 +50,7 @@ This document defines coding standards and conventions for the UrbanFlux project
 
 ---
 
-##  Code Organization
+## Code Organization
 
 ### Module Structure
 ```rust
@@ -89,7 +89,7 @@ use crate::db::schema::ServiceRequest;
 
 ---
 
-##  Code Style
+## Code Style
 
 ### Line Length
 - Maximum **100 characters** per line
@@ -102,14 +102,14 @@ use crate::db::schema::ServiceRequest;
 
 ### Error Handling
 ```rust
-//  Good - Use ? operator
+// Good - Use ? operator
 pub async fn load_config() -> Result<Config> {
     let content = tokio::fs::read_to_string("config.toml").await?;
     let config: Config = toml::from_str(&content)?;
     Ok(config)
 }
 
-//  Good - Add context
+// Good - Add context
 pub async fn load_config(path: &Path) -> Result<Config> {
     let content = tokio::fs::read_to_string(path)
         .await
@@ -121,7 +121,7 @@ pub async fn load_config(path: &Path) -> Result<Config> {
     Ok(config)
 }
 
-//  Bad - Unwrap without context
+// Bad - Unwrap without context
 pub async fn load_config() -> Config {
     let content = tokio::fs::read_to_string("config.toml").await.unwrap();
     toml::from_str(&content).unwrap()
@@ -168,7 +168,7 @@ pub async fn load_csv(path: &str, chunk_size: usize) -> Result<Vec<ServiceReques
 
 ---
 
-##  Testing Conventions
+## Testing Conventions
 
 ### Test Function Names
 - Use descriptive names with `test_` prefix
@@ -213,7 +213,7 @@ mod tests {
 
 ---
 
-##  Git Commit Conventions
+## Git Commit Conventions
 
 ### Commit Message Format
 ```
@@ -280,9 +280,9 @@ test/integration-tests
 
 ---
 
-##  Anti-Patterns to Avoid
+## Anti-Patterns to Avoid
 
-###  Overuse of `unwrap()`
+### Overuse of `unwrap()`
 ```rust
 // Bad
 let value = some_option.unwrap();
@@ -291,7 +291,7 @@ let value = some_option.unwrap();
 let value = some_option.context("Expected value to be present")?;
 ```
 
-###  Silent Error Handling
+### Silent Error Handling
 ```rust
 // Bad
 if let Err(_) = risky_operation() {
@@ -305,7 +305,7 @@ if let Err(e) = risky_operation() {
 }
 ```
 
-###  Magic Numbers
+### Magic Numbers
 ```rust
 // Bad
 if count > 100000 {
@@ -319,7 +319,7 @@ if count > FLUSH_THRESHOLD {
 }
 ```
 
-###  Deeply Nested Code
+### Deeply Nested Code
 ```rust
 // Bad
 if condition1 {
@@ -345,7 +345,7 @@ if !condition3 {
 
 ---
 
-##  Code Review Checklist
+## Code Review Checklist
 
 - [ ] Code follows naming conventions
 - [ ] Functions are reasonably sized (<50 lines preferred)
@@ -360,7 +360,7 @@ if !condition3 {
 
 ---
 
-##  Performance Guidelines
+## Performance Guidelines
 
 1. **Profile Before Optimizing**: Use `cargo flamegraph` or similar tools
 2. **Avoid Premature Optimization**: Correctness first, then optimize
@@ -373,7 +373,7 @@ if !condition3 {
 
 ---
 
-##  Security Guidelines
+## Security Guidelines
 
 1. **No Secrets in Code**: Use environment variables
 2. **Validate All Input**: Especially from external sources (CSV, APIs)
@@ -383,7 +383,7 @@ if !condition3 {
 
 ---
 
-##  Resources
+## Resources
 
 - [Rust API Guidelines](https://rust-lang.github.io/api-guidelines/)
 - [Conventional Commits](https://www.conventionalcommits.org/)

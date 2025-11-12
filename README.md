@@ -119,32 +119,23 @@ cargo run -- db refresh-mv --concurrently
 cargo run -- report last-run
 ```
 
-## Project Structure
+## Data Contract
 
+**Input CSV Format:**
 ```
-urbanflux/
-├── src/
-│   ├── main.rs              # CLI entry point and command routing
-│   ├── config.rs            # Environment configuration
-│   ├── logging.rs           # Structured logging setup
-│   ├── etl/
-│   │   ├── mod.rs           # ETL module exports
-│   │   ├── extract.rs       # CSV parsing and streaming
-│   │   ├── transform.rs     # Data validation and cleaning
-│   │   └── load.rs          # Database bulk insert
-│   ├── db/
-│   │   ├── mod.rs           # Database module exports
-│   │   └── schema.rs        # Table definitions and queries
-│   └── clean/
-│       ├── mod.rs           # Validation module exports
-│       └── validator.rs     # Data validation rules
-├── migrations/              # Database schema SQL files
-├── testdata/                # Sample CSV files
-├── Dockerfile               # Container build definition
-├── docker-compose.yml       # PostgreSQL service definition
-├── Makefile                 # Build and run shortcuts
-└── Cargo.toml               # Dependencies and metadata
+unique_key,created_date,closed_date,complaint_type,descriptor,borough,latitude,longitude
 ```
+
+**Validation Rules:**
+- Borough: Must be one of BRONX, BROOKLYN, MANHATTAN, QUEENS, STATEN ISLAND
+- Coordinates: Latitude [40.4, 41.2], Longitude [-74.3, -73.4]
+- Timestamps: closed_date ≥ created_date
+- Unique Key: Positive integer, deduplicated
+
+**Output Schema:**
+- Table: `service_requests` (with primary key on unique_key)
+- Materialized Views: `mv_complaints_by_day_borough`, `mv_complaints_by_type_month`
+- Control Table: `etl_watermarks` (for incremental loads)
 
 ## Testing
 
@@ -267,13 +258,15 @@ Inserts validated records into PostgreSQL using individual INSERT statements wit
 
 ## Contributing
 
-See [CONTRIBUTING.md](CONTRIBUTING.md) for contribution guidelines.
+See [docs/CONTRIBUTING.md](docs/CONTRIBUTING.md) for contribution guidelines.
 
 ## Documentation
 
-- [STYLEGUIDE.md](STYLEGUIDE.md) - Code style and conventions
-- [CONTRIBUTING.md](CONTRIBUTING.md) - Contribution process
-- [SECURITY.md](SECURITY.md) - Security policies
+- [docs/QUICKSTART.md](docs/QUICKSTART.md) - Quick start guide
+- [docs/USAGE.md](docs/USAGE.md) - Complete usage guide
+- [docs/STYLEGUIDE.md](docs/STYLEGUIDE.md) - Code style and conventions
+- [docs/CONTRIBUTING.md](docs/CONTRIBUTING.md) - Contribution process
+- [docs/SECURITY.md](docs/SECURITY.md) - Security policies
 - [TECH-DOC.md](TECH-DOC.md) - Detailed technical specification
 
 ## License

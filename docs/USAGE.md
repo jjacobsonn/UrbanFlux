@@ -1,17 +1,10 @@
-# UrbanFlux - Complete Usage Guide
+# UrbanFlux Usage Guide
 
-## 🚀 The ETL Pipeline is Now Functional!
+## Overview
 
-UrbanFlux now has a **working ETL pipeline** that can:
-- ✅ Extract data from CSV files (streaming, chunked)
-- ✅ Transform and validate records (borough, coordinates, dates)
-- ✅ Load data into PostgreSQL (bulk insert with deduplication)
-- ✅ Manage database schema and materialized views
-- ✅ Run in dry-run mode for testing
+UrbanFlux provides a complete ETL pipeline for processing NYC 311 service request data. The system extracts data from CSV files, validates and transforms records, and loads them into PostgreSQL for analytics.
 
----
-
-## 📋 Prerequisites
+## Prerequisites
 
 ### Option 1: With Docker (Recommended)
 ```bash
@@ -40,9 +33,7 @@ CREATE DATABASE urbanflux OWNER urbanflux_user;
 \q
 ```
 
----
-
-## 🎯 Quick Start (3 Steps)
+## Quick Start
 
 ### 1. Initialize Database Schema
 
@@ -50,15 +41,15 @@ CREATE DATABASE urbanflux OWNER urbanflux_user;
 cargo run -- db init
 ```
 
-**Output:**
+**Expected Output:**
 ```
-🔧 Initializing database schema...
-✅ Database schema initialized successfully!
+Initializing database schema...
+Database schema initialized successfully!
 ```
 
-### 2. Run ETL Pipeline (Dry Run)
+### 2. Test with Dry Run
 
-Test without database writes:
+Validate the pipeline without writing to the database:
 
 ```bash
 cargo run -- run \
@@ -67,26 +58,26 @@ cargo run -- run \
   --dry-run
 ```
 
-**Output:**
+**Expected Output:**
 ```
-🔍 DRY RUN MODE - No database writes will occur
+DRY RUN MODE - No database writes will occur
 
-📥 Extracting data from CSV...
-✅ Extracted 10 records in 2 chunks
-🔄 Processing chunk 1/...
-🔄 Processing chunk 2/...
+Extracting data from CSV...
+Extracted 10 records in 2 chunks
+Processing chunk 1/2
+Processing chunk 2/2
 
-📊 ETL Summary:
+ETL Summary:
   Total extracted: 10
   Total rejected:  0
   Would load:      10
 
-✨ ETL pipeline completed successfully!
+ETL pipeline completed successfully!
 ```
 
-### 3. Run Full ETL Pipeline
+### 3. Load Data into PostgreSQL
 
-Load data into the database:
+Execute the full ETL pipeline:
 
 ```bash
 cargo run -- run \
@@ -94,42 +85,40 @@ cargo run -- run \
   --chunk-size 100
 ```
 
-**Output:**
+**Expected Output:**
 ```
-📥 Extracting data from CSV...
-✅ Extracted 10 records in 1 chunks
-🔄 Processing chunk 1/...
+Extracting data from CSV...
+Extracted 10 records in 1 chunk
+Processing chunk 1/1
 
-📊 ETL Summary:
+ETL Summary:
   Total extracted: 10
   Total rejected:  0
   Total loaded:    10
   Records in DB:   10
 
-✨ ETL pipeline completed successfully!
+ETL pipeline completed successfully!
 ```
 
----
+## Command Reference
 
-## 🛠️ Complete Command Reference
-
-### Run ETL Pipeline
+### ETL Pipeline Execution
 
 ```bash
-# Full load (default mode)
+# Full load with default settings
 cargo run -- run --input <path-to-csv>
 
-# With custom chunk size
+# Custom chunk size for memory optimization
 cargo run -- run --input <path> --chunk-size 50000
 
-# Dry run (no database writes)
+# Dry run mode (validation only, no database writes)
 cargo run -- run --input <path> --dry-run
 
 # Incremental mode (future feature)
 cargo run -- run --mode incremental --input <path>
 ```
 
-### Database Operations
+### Database Management
 
 ```bash
 # Initialize schema (tables, indexes, materialized views)
@@ -138,28 +127,26 @@ cargo run -- db init
 # Refresh materialized views
 cargo run -- db refresh-mv
 
-# Refresh concurrently (non-blocking)
+# Refresh with CONCURRENTLY option (non-blocking)
 cargo run -- db refresh-mv --concurrently
 ```
 
 ### Reporting
 
 ```bash
-# Show last run summary
+# Display statistics from last ETL run
 cargo run -- report last-run
 ```
 
----
+## Querying Data
 
-## 📊 Query Your Data
-
-After loading data, query PostgreSQL:
+After loading data, connect to PostgreSQL and run queries:
 
 ```bash
 # Connect to database
 psql -h localhost -U urbanflux_user -d urbanflux
 
-# Count records
+# Count total records
 SELECT COUNT(*) FROM service_requests;
 
 # View recent complaints
@@ -172,7 +159,7 @@ FROM service_requests
 ORDER BY created_at DESC 
 LIMIT 10;
 
-# Complaints by borough
+# Aggregate complaints by borough
 SELECT 
     borough, 
     COUNT(*) as count 
@@ -180,107 +167,104 @@ FROM service_requests
 GROUP BY borough 
 ORDER BY count DESC;
 
-# View materialized view
+# Query materialized view
 SELECT * FROM mv_complaints_by_day_borough LIMIT 10;
 ```
 
----
-
-## 🔄 Complete Workflow Example
-
-### Step-by-Step ETL Process
+## Complete Workflow Example
 
 ```bash
-# 1. Start fresh
-make teardown  # Clean everything
-make up        # Start PostgreSQL
+# 1. Clean existing environment
+make teardown
 
-# 2. Setup database
+# 2. Start PostgreSQL
+make up
+
+# 3. Initialize database schema
 cargo run -- db init
 
-# 3. Test with dry-run
+# 4. Test with dry-run mode
 cargo run -- run --input ./testdata/sample.csv --dry-run
 
-# 4. Load data
+# 5. Load data into database
 cargo run -- run --input ./testdata/sample.csv
 
-# 5. Verify data loaded
+# 6. Verify data loaded
 cargo run -- report last-run
 
-# 6. Refresh analytics
+# 7. Refresh analytics views
 cargo run -- db refresh-mv
 
-# 7. Query results
+# 8. Query results
 docker exec -it urbanflux-postgres psql -U urbanflux_user -d urbanflux \
   -c "SELECT borough, COUNT(*) FROM service_requests GROUP BY borough;"
 ```
 
----
+## CSV Data Format
 
-## 📁 Preparing Your Own CSV Data
-
-UrbanFlux expects CSV files with these columns:
+UrbanFlux expects CSV files with the following schema:
 
 ```csv
 unique_key,created_date,closed_date,complaint_type,descriptor,borough,latitude,longitude
 ```
 
-**Column Requirements:**
-- `unique_key`: Positive integer (required)
-- `created_date`: Timestamp in format `YYYY-MM-DD HH:MM:SS` (required)
-- `closed_date`: Timestamp or empty (optional)
-- `complaint_type`: Non-empty text (required)
-- `descriptor`: Text description (optional)
-- `borough`: Must be one of: BRONX, BROOKLYN, MANHATTAN, QUEENS, STATEN ISLAND (optional)
-- `latitude`: Float between 40.4 and 41.2 (optional)
-- `longitude`: Float between -74.3 and -73.4 (optional)
+### Column Specifications
 
-**Example:**
+- **unique_key**: Positive integer (required)
+- **created_date**: Timestamp in format `YYYY-MM-DD HH:MM:SS` (required)
+- **closed_date**: Timestamp or empty (optional)
+- **complaint_type**: Non-empty text (required)
+- **descriptor**: Text description (optional)
+- **borough**: Must be one of: BRONX, BROOKLYN, MANHATTAN, QUEENS, STATEN ISLAND (optional)
+- **latitude**: Float between 40.4 and 41.2 (optional)
+- **longitude**: Float between -74.3 and -73.4 (optional)
+
+### Example CSV Data
 ```csv
 unique_key,created_date,closed_date,complaint_type,descriptor,borough,latitude,longitude
 100001,2025-01-15 09:30:00,2025-01-15 11:00:00,Noise,Loud Music,MANHATTAN,40.7580,-73.9855
 100002,2025-01-15 10:00:00,,Street Condition,Pothole,BROOKLYN,40.6782,-73.9442
 ```
 
----
+## Testing
 
-## 🧪 Testing
-
-### Run Unit Tests
+### Run Test Suite
 ```bash
+# Execute all tests
 cargo test
-```
 
-### Run with Verbose Output
-```bash
+# Run with verbose output
 cargo test -- --nocapture
-```
 
-### Run Specific Test
-```bash
+# Run specific test module
+cargo test validator
+
+# Run specific test function
 cargo test test_validate_borough
 ```
 
-### Check Code Quality
+### Code Quality Checks
 ```bash
 # Format code
 cargo fmt
 
+# Check formatting without making changes
+cargo fmt -- --check
+
 # Run linter
 cargo clippy -- -D warnings
 
-# Check for security issues
+# Security audit
 cargo audit
 ```
 
----
+## Configuration
 
-## 🔧 Configuration
-
-Edit `.env` file to customize:
+Edit `.env` file to customize behavior:
 
 ```bash
-# Database connection
+```bash
+# PostgreSQL connection
 PGHOST=localhost
 PGPORT=5432
 PGUSER=urbanflux_user
@@ -291,8 +275,13 @@ PGDATABASE=urbanflux
 ETL_CHUNK_SIZE=100000
 ETL_MODE=full
 
-# Logging
+# Logging level
 RUST_LOG=urbanflux=info,sqlx=warn
+```
+
+## Troubleshooting
+
+### Database Connection Failure
 ```
 
 ---
@@ -301,53 +290,55 @@ RUST_LOG=urbanflux=info,sqlx=warn
 
 ### "Failed to connect to PostgreSQL"
 ```bash
-# Check if PostgreSQL is running
-docker ps  # or
+# Verify PostgreSQL is running
+docker ps
+
+# Or check local service
 brew services list
 
-# Check connection manually
+# Test connection manually
 psql -h localhost -U urbanflux_user -d urbanflux
 ```
 
-### "File not found"
+### File Not Found Error
 ```bash
 # Use absolute path
 cargo run -- run --input $(pwd)/testdata/sample.csv
 
-# Or relative from project root
+# Or relative path from project root
 cargo run -- run --input ./testdata/sample.csv
 ```
 
-### "CSV parsing errors"
+### CSV Parsing Errors
+
 ```bash
-# Check CSV format
+# Validate CSV structure
 head -5 your_file.csv
 
-# Validate headers
+# Verify headers match expected schema
 # Required: unique_key,created_date,closed_date,complaint_type,descriptor,borough,latitude,longitude
 ```
 
-### "Port 5432 already in use"
+### Port Conflict (5432 already in use)
+
 ```bash
-# Stop existing PostgreSQL
+# Stop existing PostgreSQL service
 brew services stop postgresql@16
 
-# Or change port in docker-compose.yml
+# Or modify port in docker-compose.yml
 ports:
-  - "5433:5432"  # Use 5433 on host
+  - "5433:5432"  # Use port 5433 on host
 ```
 
----
+## Performance Optimization
 
-## 📈 Performance Tips
-
-### For Large Datasets
+### Large Dataset Processing
 
 ```bash
-# Increase chunk size for better throughput
+# Increase chunk size for higher throughput
 cargo run -- run --input large_file.csv --chunk-size 500000
 
-# Use RUST_LOG to reduce logging overhead
+# Reduce logging overhead
 RUST_LOG=urbanflux=warn cargo run -- run --input large_file.csv
 
 # Build in release mode for production
@@ -357,7 +348,7 @@ cargo build --release
 
 ### Database Tuning
 
-For large loads, adjust PostgreSQL settings in `docker-compose.yml`:
+For bulk loading operations, adjust PostgreSQL settings in `docker-compose.yml`:
 
 ```yaml
 environment:
@@ -366,55 +357,37 @@ environment:
   POSTGRES_MAINTENANCE_WORK_MEM: "128MB"
 ```
 
----
+## Features
 
-## 🎯 What's Working Now
+### Implemented
 
-✅ **Fully Functional ETL Pipeline**
-- Streaming CSV extraction with chunking
+- Streaming CSV extraction with configurable chunk sizes
 - Data validation and cleaning
 - Deduplication by unique_key
-- Bulk insert to PostgreSQL
-- Error handling and logging
+- Bulk insertion to PostgreSQL
+- Error handling and structured logging
+- Schema initialization with indexes and materialized views
+- Dry-run mode for testing
 
-✅ **Database Operations**
-- Schema initialization
-- Index creation
-- Materialized views
-- View refresh
+### Data Quality Validations
 
-✅ **CLI Commands**
-- `run` - Execute ETL pipeline
-- `db init` - Initialize schema
-- `db refresh-mv` - Refresh analytics
-- `report last-run` - Show statistics
+- Borough must be one of NYC's five boroughs
+- Coordinates must fall within NYC bounding box (lat: 40.4-41.2, lon: -74.3 to -73.4)
+- Closed date must be after or equal to created date
+- Text fields are cleaned and normalized
 
-✅ **Data Quality**
-- Borough validation (5 NYC boroughs)
-- Coordinate validation (NYC bounding box)
-- Date validation (closed >= created)
-- Text cleaning and normalization
+## Next Steps
 
----
-
-## 🚀 Next Steps
-
-1. **Get NYC 311 Data**
+1. **Obtain NYC 311 Dataset**
    - Download from: https://data.cityofnewyork.us/Social-Services/311-Service-Requests-from-2010-to-Present/erm2-nwe9
-   - Place in `testdata/` directory
+   - Place file in `testdata/` directory
 
-2. **Run Full Pipeline**
+2. **Process Production Data**
    ```bash
    cargo run --release -- run --input testdata/311_data.csv --chunk-size 100000
    ```
 
 3. **Build Analytics**
-   - Query materialized views
-   - Create dashboards
-   - Generate reports
-
----
-
-**🎉 Your ETL system is production-ready!**
-
-All core functionality is implemented and tested. You can now process real NYC 311 data at scale!
+   - Query materialized views for aggregated insights
+   - Create dashboards using BI tools
+   - Generate reports on service request patterns
