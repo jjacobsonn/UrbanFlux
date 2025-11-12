@@ -1,6 +1,6 @@
 # UrbanFlux – Rust ETL System Technical Spec (AI-Agent Ready)
 
-> **Purpose:** This Markdown instructs an AI coding agent to build **UrbanFlux**, a cross-platform, production-grade ETL system in **Rust**. It ingests multi-GB NYC 311 Service Request CSVs, cleans and deduplicates them, bulk-loads into PostgreSQL, and maintains **materialized views** for high-speed analytics with nightly automation. Emphasis: **systems-level rigor**, **Big-O scalability**, **correctness**, **safety**, and **FAANG-level reliability engineering.**
+> **Purpose:** Technical specification for **UrbanFlux**, a cross-platform ETL system in **Rust**. The system ingests large NYC 311 Service Request CSV files, performs data cleaning and deduplication, bulk-loads into PostgreSQL, and maintains **materialized views** for analytics with automated updates. Emphasis: **scalability**, **correctness**, **safety**, and **reliability**.
 
 ---
 
@@ -39,9 +39,9 @@
 - **CI/CD:** GitHub Actions (cargo fmt, clippy, test, docker build)
 
 **Why Rust?**
-- **Memory-safe** concurrency and deterministic performance.
-- Zero-copy parsing for streaming CSV.
-- Demonstrates systems-level proficiency and performance engineering — key for FAANG interviews.
+- Memory-safe concurrency and deterministic performance
+- Zero-copy parsing for streaming CSV
+- Strong type system prevents common programming errors
 
 ---
 
@@ -300,4 +300,4 @@ Implement per spec:
 
 ---
 
-**End of Spec — UrbanFlux is a Rust-based ETL system demonstrating concurrency, performance, and reliability suitable for FAANG interviews.**
+**End of Specification — UrbanFlux is a Rust-based ETL system for processing NYC 311 service request data with emphasis on concurrency, performance, and reliability.**

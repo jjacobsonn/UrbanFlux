@@ -3,38 +3,39 @@
 [![CI](https://github.com/jjacobsonn/UrbanFlux/workflows/CI/badge.svg)](https://github.com/jjacobsonn/UrbanFlux/actions)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-> **High-performance ETL system for NYC 311 Service Request data** — Built with Rust for systems-level rigor, async I/O, and production-grade reliability.
+## Overview
 
-UrbanFlux is a cross-platform, production-ready ETL pipeline that ingests multi-gigabyte NYC 311 Service Request CSV files, performs data cleaning and deduplication, bulk-loads into PostgreSQL, and maintains materialized views for high-speed analytics. Designed to demonstrate FAANG-level systems engineering and Rust's concurrency model.
+UrbanFlux is an ETL (Extract, Transform, Load) system for processing NYC 311 Service Request data. The system reads CSV files containing service request records, validates and cleans the data, removes duplicates, and loads the results into a PostgreSQL database.
 
----
+## Technical Architecture
 
-## 🚀 Features
+The system is implemented in Rust and uses an asynchronous processing model to handle large datasets efficiently. Key components include:
 
-- **Streaming ETL Pipeline**: O(N) linear-time processing with O(1) memory overhead per chunk
-- **Async Architecture**: Built on Tokio for high-throughput concurrent operations
-- **Type-Safe Database**: SQLx with compile-time query validation
-- **Bulk Loading**: PostgreSQL COPY protocol for maximum insert performance
-- **Data Quality**: Built-in validation, cleaning, and deduplication logic
-- **Materialized Views**: Automated nightly refresh for analytics workloads
-- **Observability**: Structured logging with tracing, metrics, and run reports
-- **Docker Native**: Fully containerized stack with docker-compose
-- **CI/CD Ready**: GitHub Actions pipeline with formatting, linting, and testing
+- **Extract**: Asynchronous CSV streaming with configurable chunk sizes
+- **Transform**: Data validation, normalization, and deduplication
+- **Load**: Bulk insertion to PostgreSQL with conflict handling
+- **Database**: PostgreSQL with indexed tables and materialized views for analytics
 
----
+## Features
 
-## 📋 Prerequisites
+- Streaming CSV processing with constant memory usage per chunk
+- Async I/O operations using Tokio runtime
+- Data validation including borough verification, coordinate bounds checking, and date validation
+- In-memory deduplication based on unique keys
+- Bulk database inserts with ON CONFLICT handling
+- Materialized views for aggregate queries
+- Structured logging via tracing framework
+- Docker containerization for PostgreSQL and application
 
-- **Rust**: 1.80+ ([Install Rust](https://rustup.rs/))
-- **Docker**: 24.0+ with docker-compose
-- **PostgreSQL**: 16+ (provided via Docker, or use local instance)
-- **Make**: For convenient build commands
+## Prerequisites
 
----
+- Rust 1.80 or later
+- Docker and docker-compose (for PostgreSQL)
+- PostgreSQL 16 or later (if not using Docker)
 
-## 🏗️ Quick Start
+## Installation
 
-### 1. Clone and Setup
+### Clone Repository
 
 ```bash
 git clone https://github.com/jjacobsonn/UrbanFlux.git
@@ -42,278 +43,239 @@ cd UrbanFlux
 cp .env.example .env
 ```
 
-### 2. Start Infrastructure
+### Start PostgreSQL
 
 ```bash
 make up
 ```
 
-This starts PostgreSQL via docker-compose.
-
-### 3. Build the Project
+### Build Application
 
 ```bash
 make build
 ```
 
-Or for development:
-
-```bash
-cargo build
-```
-
-### 4. Initialize Database
+### Initialize Database Schema
 
 ```bash
 make db-init
 ```
 
-### 5. Run ETL Pipeline
+### Run ETL Pipeline
 
 ```bash
-# Full load
+# Process CSV file
 make seed
 
-# Incremental load
-make nightly
+# Or run directly with cargo
+cargo run -- run --mode full --input ./testdata/sample.csv
 ```
 
-### 6. Query Results
+### Query Results
 
 ```bash
-docker exec -it urbanflux-postgres psql -U urbanflux_user -d urbanflux -c \
-  "SELECT * FROM mv_complaints_by_day_borough LIMIT 10;"
+docker exec -it urbanflux-postgres psql -U urbanflux_user -d urbanflux \
+  -c "SELECT * FROM mv_complaints_by_day_borough LIMIT 10;"
 ```
 
----
+## CLI Usage
 
-## 🛠️ CLI Usage
+### Display Help
 
 ```bash
-# Show help
-urbanflux --help
+cargo run -- --help
+```
 
-# Run full ETL
-urbanflux run --mode full --input ./testdata/sample.csv --chunk-size 100000
+### Run ETL Commands
 
-# Run incremental ETL
-urbanflux run --mode incremental --input ./testdata/sample.csv
+```bash
+# Process CSV file with full mode
+cargo run -- run --mode full --input ./testdata/sample.csv
 
-# Dry run (no database writes)
-urbanflux run --mode full --input ./testdata/sample.csv --dry-run
+# Specify chunk size
+cargo run -- run --mode full --input ./testdata/sample.csv --chunk-size 50000
 
-# Initialize database schema
-urbanflux db init
+# Dry run (validates without database write)
+cargo run -- run --mode full --input ./testdata/sample.csv --dry-run
+```
+
+### Database Commands
+
+```bash
+# Initialize schema
+cargo run -- db init
 
 # Refresh materialized views
-urbanflux db refresh-mv --concurrently
+cargo run -- db refresh-mv
 
-# View last run report
-urbanflux report last-run
+# Refresh with CONCURRENTLY option
+cargo run -- db refresh-mv --concurrently
 ```
 
----
+### Report Commands
 
-## 📁 Project Structure
+```bash
+# Show last run statistics
+cargo run -- report last-run
+```
+
+## Project Structure
 
 ```
 urbanflux/
-├── .github/
-│   ├── workflows/           # CI/CD pipelines
-│   ├── ISSUE_TEMPLATE/      # Issue templates
-│   └── pull_request_template/
 ├── src/
-│   ├── main.rs              # CLI entry point
-│   ├── config.rs            # Configuration management
-│   ├── logging.rs           # Tracing setup
+│   ├── main.rs              # CLI entry point and command routing
+│   ├── config.rs            # Environment configuration
+│   ├── logging.rs           # Structured logging setup
 │   ├── etl/
-│   │   ├── extract.rs       # CSV streaming
-│   │   ├── transform.rs     # Data cleaning
-│   │   └── load.rs          # Bulk insert
+│   │   ├── mod.rs           # ETL module exports
+│   │   ├── extract.rs       # CSV parsing and streaming
+│   │   ├── transform.rs     # Data validation and cleaning
+│   │   └── load.rs          # Database bulk insert
 │   ├── db/
-│   │   └── schema.rs        # Database schema
+│   │   ├── mod.rs           # Database module exports
+│   │   └── schema.rs        # Table definitions and queries
 │   └── clean/
-│       └── validator.rs     # Data validation
-├── migrations/              # SQL migrations
-├── scripts/                 # Utility scripts
-├── testdata/                # Sample data
-├── docs/                    # Documentation
-├── Dockerfile               # Multi-stage build
-├── docker-compose.yml       # Stack orchestration
-├── Makefile                 # Build automation
-└── Cargo.toml               # Rust dependencies
+│       ├── mod.rs           # Validation module exports
+│       └── validator.rs     # Data validation rules
+├── migrations/              # Database schema SQL files
+├── testdata/                # Sample CSV files
+├── Dockerfile               # Container build definition
+├── docker-compose.yml       # PostgreSQL service definition
+├── Makefile                 # Build and run shortcuts
+└── Cargo.toml               # Dependencies and metadata
 ```
 
----
-
-## 🧪 Testing
+## Testing
 
 ```bash
-# Run all tests
-make test
+# Run test suite
+cargo test
 
-# Run with verbose output
+# Run with output
 cargo test -- --nocapture
 
-# Run specific test
-cargo test test_name
+# Run specific module tests
+cargo test validator
 ```
 
----
-
-## 🎨 Code Quality
+## Code Quality
 
 ```bash
 # Format code
-make fmt
+cargo fmt
 
-# Check formatting
-make fmt-check
+# Check formatting without changes
+cargo fmt -- --check
 
 # Run linter
-make lint
+cargo clippy -- -D warnings
 ```
 
----
-
-## 🐳 Docker Commands
+## Docker Operations
 
 ```bash
-# Start stack
-make up
+# Start PostgreSQL
+docker compose up -d
 
-# Stop stack
-make down
+# Stop services
+docker compose down
 
 # View logs
-make logs
+docker compose logs -f
 
-# Teardown (including volumes)
-make teardown
+# Remove volumes
+docker compose down -v
 ```
 
----
+## Database Schema
 
-## 📊 Database Schema
+### Tables
 
-### Service Requests Table
+**service_requests**
+- Primary key: unique_key (BIGINT)
+- Timestamps: created_at, closed_at, ingested_at (TIMESTAMPTZ)
+- Text fields: complaint_type (required), descriptor, borough
+- Coordinates: latitude, longitude (DOUBLE PRECISION)
+- Constraints: Borough must be one of NYC's five boroughs
 
-```sql
-CREATE TABLE service_requests (
-  unique_key BIGINT PRIMARY KEY,
-  created_at TIMESTAMPTZ NOT NULL,
-  closed_at TIMESTAMPTZ,
-  complaint_type TEXT NOT NULL,
-  descriptor TEXT,
-  borough TEXT CHECK (borough IN ('BRONX','BROOKLYN','MANHATTAN','QUEENS','STATEN ISLAND')),
-  latitude DOUBLE PRECISION,
-  longitude DOUBLE PRECISION,
-  ingested_at TIMESTAMPTZ DEFAULT now()
-);
-```
+**etl_watermarks**
+- Tracks ETL run metadata
+- Fields: run_id, last_created_at, last_unique_key, run_mode, row counts, timestamps, status
+
+### Indexes
+
+- idx_service_requests_created_at: B-tree on created_at
+- idx_service_requests_borough: B-tree on borough
+- idx_service_requests_complaint_type: B-tree on complaint_type
 
 ### Materialized Views
 
-- `mv_complaints_by_day_borough`: Daily complaint counts by borough
-- `mv_complaints_by_type_month`: Monthly complaint counts by type
+**mv_complaints_by_day_borough**
+- Aggregates complaints by date and borough
+- Columns: complaint_date, borough, complaint_count
 
----
+**mv_complaints_by_type_month**
+- Aggregates complaints by month and type
+- Columns: month, complaint_type, complaint_count, avg_resolution_hours
 
-## 🔧 Configuration
+## Configuration
 
-Configuration via environment variables (see `.env.example`):
+The system reads configuration from environment variables. Copy `.env.example` to `.env` and modify as needed:
 
 ```bash
-# Database
+# PostgreSQL connection
 PGHOST=localhost
 PGPORT=5432
 PGUSER=urbanflux_user
-PGPASSWORD=your_password
+PGPASSWORD=urbanflux_dev_password
 PGDATABASE=urbanflux
 
-# ETL
+# ETL settings
 ETL_INPUT_PATH=./testdata/sample.csv
 ETL_CHUNK_SIZE=100000
 ETL_MODE=full
 
-# Logging
+# Logging level
 RUST_LOG=urbanflux=info,sqlx=warn
 ```
 
----
+## Data Processing
 
-## 📈 Performance
+### Extract Phase
 
-- **Throughput**: ≥300k rows/sec per core
-- **Memory**: O(1) overhead per chunk (configurable chunk size)
-- **Complexity**: O(N) linear time for full pipeline
+Reads CSV files asynchronously using csv-async. Parses each row into a ServiceRequest struct with proper type conversion for timestamps, coordinates, and numeric fields.
 
----
+### Transform Phase
 
-## 🤝 Contributing
+Applies the following validations:
+- Unique key must be positive integer
+- Borough must be one of: BRONX, BROOKLYN, MANHATTAN, QUEENS, STATEN ISLAND
+- Coordinates must be within NYC bounds (lat: 40.4-41.2, lon: -74.3 to -73.4)
+- Closed date must be after created date if present
+- Removes duplicate records based on unique_key
 
-See [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
+### Load Phase
 
-1. Fork the repository
-2. Create a feature branch (`git checkout -b feat/amazing-feature`)
-3. Commit your changes (`git commit -m 'feat: add amazing feature'`)
-4. Push to the branch (`git push origin feat/amazing-feature`)
-5. Open a Pull Request
+Inserts validated records into PostgreSQL using individual INSERT statements with ON CONFLICT DO NOTHING to handle duplicates at the database level.
 
----
+## Performance Characteristics
 
-## 📝 Style Guide
+- Time complexity: O(N) where N is number of records
+- Space complexity: O(C) where C is chunk size (default 100,000)
+- Streaming processing prevents loading entire file into memory
 
-See [STYLEGUIDE.md](STYLEGUIDE.md) for:
-- Naming conventions
-- Commit message format
-- Code organization
-- Error handling patterns
+## Contributing
 
----
+See [CONTRIBUTING.md](CONTRIBUTING.md) for contribution guidelines.
 
-## 🔒 Security
+## Documentation
 
-See [SECURITY.md](SECURITY.md) for security policies and reporting vulnerabilities.
+- [STYLEGUIDE.md](STYLEGUIDE.md) - Code style and conventions
+- [CONTRIBUTING.md](CONTRIBUTING.md) - Contribution process
+- [SECURITY.md](SECURITY.md) - Security policies
+- [TECH-DOC.md](TECH-DOC.md) - Detailed technical specification
 
----
+## License
 
-## 📄 License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
----
-
-## 🙏 Acknowledgments
-
-- NYC Open Data for providing the 311 Service Request dataset
-- The Rust community for excellent async/await tooling
-- PostgreSQL team for robust database performance
-
----
-
-## 📚 Documentation
-
-For detailed technical documentation, see [TECH-DOC.md](TECH-DOC.md).
-
----
-
-## 🐛 Known Issues
-
-- None yet! This is a fresh setup ready for implementation.
-
----
-
-## 🗺️ Roadmap
-
-- [x] Project scaffolding and CI/CD
-- [ ] CSV streaming implementation
-- [ ] Transform and validation logic
-- [ ] Bulk load via COPY
-- [ ] Materialized view automation
-- [ ] Metrics endpoint
-- [ ] Web dashboard (stretch goal)
-
----
-
-Built with ❤️ using Rust
+This project is licensed under the MIT License. See [LICENSE](LICENSE) file for details.

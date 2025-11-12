@@ -1,6 +1,6 @@
 # Security Policy
 
-## 🔒 Supported Versions
+##  Supported Versions
 
 Currently supported versions with security updates:
 
@@ -10,7 +10,7 @@ Currently supported versions with security updates:
 
 ---
 
-## 🚨 Reporting a Vulnerability
+##  Reporting a Vulnerability
 
 We take the security of UrbanFlux seriously. If you discover a security vulnerability, please follow these steps:
 
@@ -46,7 +46,7 @@ Instead:
 
 ---
 
-## 🛡️ Security Best Practices
+##  Security Best Practices
 
 ### For Users
 
@@ -123,7 +123,7 @@ Instead:
 
 ---
 
-## 🚦 Vulnerability Severity
+##  Vulnerability Severity
 
 We use [CVSS v3.1](https://www.first.org/cvss/) to assess severity:
 
@@ -136,7 +136,7 @@ We use [CVSS v3.1](https://www.first.org/cvss/) to assess severity:
 
 ---
 
-## 📋 Security Checklist
+##  Security Checklist
 
 Before each release, we verify:
 
@@ -151,7 +151,7 @@ Before each release, we verify:
 
 ---
 
-## 🔍 Security Audit History
+##  Security Audit History
 
 | Date       | Type          | Findings | Status   |
 |------------|---------------|----------|----------|
@@ -159,7 +159,7 @@ Before each release, we verify:
 
 ---
 
-## 🛠️ Security Tools
+##  Security Tools
 
 ### Recommended Tools
 
@@ -197,7 +197,7 @@ Our CI pipeline includes:
 
 ---
 
-## 📞 Contact
+##  Contact
 
 For security concerns:
 - **Email**: security@urbanflux.dev (replace with actual)
@@ -209,7 +209,7 @@ For general questions:
 
 ---
 
-## 🏅 Security Acknowledgments
+##  Security Acknowledgments
 
 We appreciate security researchers who responsibly disclose vulnerabilities. Contributors will be acknowledged in:
 - Security advisories
@@ -218,7 +218,7 @@ We appreciate security researchers who responsibly disclose vulnerabilities. Con
 
 ---
 
-## 📚 Resources
+##  Resources
 
 - [Rust Security Guidelines](https://anssi-fr.github.io/rust-guide/)
 - [OWASP Top 10](https://owasp.org/www-project-top-ten/)
@@ -227,7 +227,7 @@ We appreciate security researchers who responsibly disclose vulnerabilities. Con
 
 ---
 
-## 📝 Updates
+##  Updates
 
 This security policy is reviewed and updated:
 - After each security incident

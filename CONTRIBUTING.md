@@ -4,7 +4,7 @@ Thank you for your interest in contributing to UrbanFlux! This document provides
 
 ---
 
-## 📋 Table of Contents
+##  Table of Contents
 
 - [Code of Conduct](#code-of-conduct)
 - [Getting Started](#getting-started)
@@ -17,7 +17,7 @@ Thank you for your interest in contributing to UrbanFlux! This document provides
 
 ---
 
-## 📜 Code of Conduct
+##  Code of Conduct
 
 ### Our Pledge
 
@@ -38,7 +38,7 @@ We are committed to providing a welcoming and inclusive environment for all cont
 
 ---
 
-## 🚀 Getting Started
+##  Getting Started
 
 ### Prerequisites
 
@@ -74,7 +74,7 @@ make up
 
 ---
 
-## 🔄 Development Process
+##  Development Process
 
 ### 1. Find or Create an Issue
 
@@ -135,7 +135,7 @@ git push origin feat/your-feature-name --force-with-lease
 
 ---
 
-## 🔀 Pull Request Process
+##  Pull Request Process
 
 ### Before Submitting
 
@@ -194,7 +194,7 @@ git push origin --delete feat/your-feature-name
 
 ---
 
-## 💻 Coding Standards
+##  Coding Standards
 
 ### Code Style
 
@@ -247,7 +247,7 @@ Fixes #67
 
 ---
 
-## 🧪 Testing Guidelines
+##  Testing Guidelines
 
 ### Test Coverage
 
@@ -301,7 +301,7 @@ cargo test --test '*'
 
 ---
 
-## 📚 Documentation
+##  Documentation
 
 ### Code Documentation
 
@@ -345,7 +345,7 @@ When adding features or changing behavior:
 
 ---
 
-## 🤝 Community
+##  Community
 
 ### Communication Channels
 
@@ -379,7 +379,7 @@ Use the feature request template and include:
 
 ---
 
-## 🏆 Recognition
+##  Recognition
 
 Contributors are recognized in:
 - `CONTRIBUTORS.md` file
@@ -388,13 +388,13 @@ Contributors are recognized in:
 
 ---
 
-## 📄 License
+##  License
 
 By contributing, you agree that your contributions will be licensed under the MIT License.
 
 ---
 
-## 🙏 Thank You
+##  Thank You
 
 Every contribution matters! Whether it's:
 - Reporting a bug
